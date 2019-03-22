@@ -1,0 +1,12 @@
+---
+Name: user_defined_exports
+After:
+  - 'framework/*'
+  - 'cms/*'
+---
+ModelAdmin:
+  extensions:
+    - UserDefinedExportsModelAdminExtension
+SiteConfig:
+  extensions:
+    - UserDefinedExportsSiteConfigExtension

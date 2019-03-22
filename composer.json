@@ -1,0 +1,17 @@
+{
+  "name": "bueckl/user-defined-exports",
+  "description": "Allows the user to define exports",
+  "type": "silverstripe-module",
+  "keywords": ["silverstripe", "GridField"],
+  "license": "BSD-3-Clause",
+  "authors": [
+    {
+      "name": "Jochen Gülden",
+      "email": "jochen@guelden.org"
+    }],
+  "require": {
+    "silverstripe/framework"    : "*",
+    "phpoffice/phpexcel": ">=1.8"
+  }
+
+}
