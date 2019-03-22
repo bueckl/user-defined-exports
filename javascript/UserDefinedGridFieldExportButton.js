@@ -4,9 +4,7 @@
 
         $('.user-defined-export-button').entwine({
             onchange: function () {
-                console.log('..on change called...');
                 var option = $('option:selected', this).val();
-                console.log(option);
                 $('.js_export_button').attr('data-exportbid', option);
             }
         });

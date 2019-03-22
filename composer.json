@@ -11,7 +11,7 @@
     }],
   "require": {
     "silverstripe/framework"    : "*",
-    "phpoffice/phpexcel": ">=1.8"
+    "phpoffice/phpexcel": "*"
   }
 
 }
