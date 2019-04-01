@@ -15,7 +15,7 @@ class UserDefinedExportsSiteConfigExtension extends DataExtension
                 'UserDefinedExports',
                 'User Defined Exports',
                 UserDefinedExportsFieldHolder::get(),
-                new GridFieldConfig_RecordEditor(5))
+                new GridFieldConfig_RecordEditor(50))
         );
     }
 }

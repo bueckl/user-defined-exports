@@ -11,6 +11,7 @@ class UserDefinedExportsButton extends DataObject
     private static $db = array(
         'ExportButtonName' => 'Text',
         'ExportFormat' => "Enum('CSV,EXCEL','CSV')",
+        'ExportFileName' => 'Text'
     );
 
     private static $has_one= array(
@@ -35,13 +36,29 @@ class UserDefinedExportsButton extends DataObject
         $fields = parent::getCMSFields();
         $fields->removeByName(array(
             'UserDefinedExportsItemID',
-            'ExportButtonName'
+            'ExportButtonName',
+            'UserDefinedExportsFields',
+            'ExportFileName'
         ));
 
         $fields->addFieldToTab('Root.Main',TextField::create('ExportButtonName','Export Button Name'));
+        $fields->addFieldToTab('Root.Main',TextField::create('ExportFileName','Export File Name'));
 
         DropdownField::create('ExportFormat','ExportFormat')
             ->setSource($this->dbObject('ExportFormat')->enumValues());
+
+        $gridField =  GridField::create(
+            'UserDefinedExportsFields',
+            'User Defined Exports Fields',
+            $this->UserDefinedExportsFields(),
+            new GridFieldConfig_RecordEditor(5));
+
+        $fields->addFieldToTab('Root.UserDefinedExportsFields',
+            $gridField
+        );
+
+        $gridField->getConfig()->addComponent(new GridFieldOrderableRows('Sort'));
+
         return $fields;
     }
 }

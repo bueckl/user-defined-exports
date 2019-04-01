@@ -12,7 +12,8 @@ class UserDefinedExportsField extends DataObject
     private static $db = array(
         'OriginalExportField' => 'Varchar(255)',
         'ExportFieldLabel' => 'Varchar(255)',
-        'SelectedType' => "Enum('DB and Relations,Functions','DB and Relations')"
+        'SelectedType' => "Enum('DB and Relations,Functions','DB and Relations')",
+        'Sort' => 'Int'
     );
 
     private static $has_one = array(
@@ -23,6 +24,8 @@ class UserDefinedExportsField extends DataObject
         'OriginalExportField',
         'ExportFieldLabel'
     );
+
+    private static $default_sort = 'Sort';
 
     public function validate()
     {
@@ -80,9 +83,9 @@ class UserDefinedExportsField extends DataObject
                     $arrFields = array_merge($arrFields, $newFieldsArr);
                 }
                 $fields->addFieldsToTab('Root.Main', array(
-                    DropdownField::create('OriginalExportField', 'Field want to display')
+                    DropdownField::create('OriginalExportField', 'Field')
                         ->setSource($arrFields),
-                    TextField::create('ExportFieldLabel', 'Label name wants to display'),
+                    TextField::create('ExportFieldLabel', 'Custom Label'),
                 ));
             }
         } else {

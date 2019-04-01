@@ -58,11 +58,21 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
         if (!$filename) {
             $filename = $do->i18n_plural_name();
         }
+
+        $date = SS_Datetime::now()->value;
+        $dateVal = explode(" ", $date)[0];
+        $timeVal = explode(" ", $date)[1];
+
+        $y = explode("-", $dateVal)[0];
+        $m = explode("-", $dateVal)[1];
+        $d = explode("-", $dateVal)[2];
+
+        $updateFileName = $filename.'_'.$d.'_'.$m.'_'.$y.'_'.$timeVal;
         Controller::curr()->getResponse()
             ->addHeader(
                 "Content-Disposition",
                 'attachment; filename="' .
-                $filename .
+                $updateFileName .
                 '.' . $ext . '"'
             );
     }
@@ -121,10 +131,15 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
         );
     }
 
+    public function getExportButton()
+    {
+        return UserDefinedExportsButton::get()->filter('ID',$this->exportButtonID)->first();
+    }
+
 
     protected function getExportColumnsForGridField(GridField $gridField)
     {
-        $exportButton = UserDefinedExportsButton::get()->filter('ID',$this->exportButtonID)->first();
+        $exportButton = $this->getExportButton();
         $exportFields = $exportButton->UserDefinedExportsFields();
         $fieldsArr = array();
 
@@ -155,7 +170,9 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
     protected function genericHandle($dataFormatterClass, $ext, GridField $gridField, $request = null)
     {
         $items = $this->getItems($gridField);
-        $this->setHeader($gridField, $ext);
+
+        $exportButton = $this->getExportButton();
+        $this->setHeader($gridField, $ext, $exportButton->ExportFileName);
 
         $formater = new $dataFormatterClass();
         $formater->setCustomFields($this->getExportColumnsForGridField($gridField));
