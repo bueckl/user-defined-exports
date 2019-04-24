@@ -76,14 +76,34 @@ class ExcelDataFormatter extends DataFormatter
     {
         $dbFields = array();
 
+
         // if custom fields are specified, only select these
         if(is_array($this->customFields)) {
+
             foreach($this->customFields as $fieldName => $title) {
+
                 // @todo Possible security risk by making methods accessible - implement field-level security
                 if($obj->hasField($fieldName) || $obj->hasMethod("get{$fieldName}")) {
-                    $dbFields[$fieldName] = $title;
+                    $dbFields[$fieldName] = $fieldName;
                 }
+
+                // RELATION HANDLING JOCHEN
+                if($hasOne = $obj->hasOne()) {
+                    foreach($hasOne as $relationship => $class) {
+
+                        $parts = explode(".", $fieldName);
+                        if (count($parts) == 2) {
+                            // It's a relation!
+                            $relation = $parts[0];
+                            $dbFields[$fieldName] = $parts[1];
+                        }
+                        // debug::dump($fieldName); debug::dump($relationship); debug::dump($class);
+                    }
+                }
+                // END RELATION HANDLING
+
             }
+
         } elseif ($obj->hasMethod('getExcelExportFields')) {
             $dbFields = $obj->getExcelExportFields();
         } else {
@@ -106,6 +126,8 @@ class ExcelDataFormatter extends DataFormatter
         if(is_array($this->removeFields)) {
             $dbFields = array_diff_key($dbFields, array_combine($this->removeFields,$this->removeFields));
         }
+
+
         return $dbFields;
     }
 
