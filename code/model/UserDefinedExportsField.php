@@ -35,7 +35,7 @@ class UserDefinedExportsField extends DataObject
             $this->SelectedType == 'Functions'
             && ($objectType = $this->UserDefinedExportsButton()->UserDefinedExportsItem()->ManageModelName)
             && ($funcName = $this->OriginalExportField)
-            && !singleton($objectType)->hasMethod($funcName)
+            && !singleton($objectType)->hasMethod('get'.$funcName)
         ) {
             $result->error('Function doesn\'t exist.', 'bad');
         }
