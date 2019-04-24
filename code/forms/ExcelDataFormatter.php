@@ -97,7 +97,6 @@ class ExcelDataFormatter extends DataFormatter
                             $relation = $parts[0];
                             $dbFields[$fieldName] = $parts[1];
                         }
-                        // debug::dump($fieldName); debug::dump($relationship); debug::dump($class);
                     }
                 }
                 // END RELATION HANDLING
