@@ -51,7 +51,7 @@ class UserDefinedExportsButton extends DataObject
             'UserDefinedExportsFields',
             'User Defined Exports Fields',
             $this->UserDefinedExportsFields(),
-            new GridFieldConfig_RecordEditor(5));
+            new GridFieldConfig_RecordEditor(50));
 
         $fields->addFieldToTab('Root.UserDefinedExportsFields',
             $gridField
