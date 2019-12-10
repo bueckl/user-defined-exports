@@ -170,6 +170,9 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
     protected function genericHandle($dataFormatterClass, $ext, GridField $gridField, $request = null)
     {
         $items = $this->getItems($gridField);
+        
+        // Allways filter out test user
+        $items = $items->exclude('TestUser', 1);
 
         $exportButton = $this->getExportButton();
         $this->setHeader($gridField, $ext, $exportButton->ExportFileName);
