@@ -103,7 +103,7 @@ class ExcelDataFormatter extends DataFormatter
 
             }
 
-        } elseif ($obj->hasMethod('getExcelExportFields')) {
+        } elseif ($obj->hasMethod('getExcelExportFields')) {            
             $dbFields = $obj->getExcelExportFields();
         } else {
             // by default, all database fields are selected
@@ -148,6 +148,7 @@ class ExcelDataFormatter extends DataFormatter
         // Make sure we have at lease on item. If we don't, we'll be returning
         // an empty spreadsheet.
         if ($first) {
+
             // Set up the header row
             $fields = $this->getFieldsForObj($first);
             $this->headerRow($sheet, $fields, $first);
@@ -233,13 +234,12 @@ class ExcelDataFormatter extends DataFormatter
         $useLabelsAsHeaders = $this->getUseLabelsAsHeaders();
 
         // Add each field to the first row
-
+        $customFields = $this->customFields;
 
         foreach ($fields as $field => $type) {
 
-
-//            $header = $useLabelsAsHeaders ? $do->fieldLabel($field) : $field;
-            $header = $type ? $type : $do->fieldLabel($field);
+            //$header = $useLabelsAsHeaders ? $do->fieldLabel($field) : $field;
+            $header = $cf[$field] != "" ? $type : $do->fieldLabel($field);
             $sheet->setCellValueByColumnAndRow($col, $row, $header);
             $col++;
         }
