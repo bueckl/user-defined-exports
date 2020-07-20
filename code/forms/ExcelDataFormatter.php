@@ -237,12 +237,15 @@ class ExcelDataFormatter extends DataFormatter
         $customFields = $this->customFields;
 
         foreach ($fields as $field => $type) {
-
+            // debug::dump( $customFields[$field] ); 
+            // debug::dump( $customFields[$type] ); 
             //$header = $useLabelsAsHeaders ? $do->fieldLabel($field) : $field;
-            $header = $customFields[$field] != "" ? $type : $do->fieldLabel($field);
+            $header = $customFields[$field] != "" ? $customFields[$field] : $do->fieldLabel($field);
             $sheet->setCellValueByColumnAndRow($col, $row, $header);
             $col++;
         }
+
+        
 
         // Get the last column
         $col--;
