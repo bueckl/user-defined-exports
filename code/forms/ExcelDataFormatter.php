@@ -239,7 +239,7 @@ class ExcelDataFormatter extends DataFormatter
         foreach ($fields as $field => $type) {
 
             //$header = $useLabelsAsHeaders ? $do->fieldLabel($field) : $field;
-            $header = $cf[$field] != "" ? $type : $do->fieldLabel($field);
+            $header = $customFields[$field] != "" ? $type : $do->fieldLabel($field);
             $sheet->setCellValueByColumnAndRow($col, $row, $header);
             $col++;
         }
