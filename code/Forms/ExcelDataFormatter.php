@@ -5,6 +5,9 @@
  * Date: 3/11/19
  * Time: 10:25 AM
  */
+namespace UserDefinedExports\Forms;
+
+use ExcelExport\DataFormatter;
 
 class ExcelDataFormatter extends DataFormatter
 {
@@ -103,7 +106,7 @@ class ExcelDataFormatter extends DataFormatter
 
             }
 
-        } elseif ($obj->hasMethod('getExcelExportFields')) {            
+        } elseif ($obj->hasMethod('getExcelExportFields')) {
             $dbFields = $obj->getExcelExportFields();
         } else {
             // by default, all database fields are selected
@@ -237,15 +240,15 @@ class ExcelDataFormatter extends DataFormatter
         $customFields = $this->customFields;
 
         foreach ($fields as $field => $type) {
-            // debug::dump( $customFields[$field] ); 
-            // debug::dump( $customFields[$type] ); 
+            // debug::dump( $customFields[$field] );
+            // debug::dump( $customFields[$type] );
             //$header = $useLabelsAsHeaders ? $do->fieldLabel($field) : $field;
             $header = $customFields[$field] != "" ? $customFields[$field] : $do->fieldLabel($field);
             $sheet->setCellValueByColumnAndRow($col, $row, $header);
             $col++;
         }
 
-        
+
 
         // Get the last column
         $col--;

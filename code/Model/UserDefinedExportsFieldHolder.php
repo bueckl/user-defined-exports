@@ -5,6 +5,7 @@
  * Date: 2/26/19
  * Time: 12:27 PM
  */
+namespace UserDefinedExports\Model;
 
 class UserDefinedExportsFieldHolder extends DataObject
 {
@@ -13,7 +14,7 @@ class UserDefinedExportsFieldHolder extends DataObject
     );
 
     private static $has_many = array(
-        'UserDefinedExportsItems' => 'UserDefinedExportsItem'
+        'UserDefinedExportsItems' => UserDefinedExportsItem::class
     );
 
     private static $summary_fields = array(

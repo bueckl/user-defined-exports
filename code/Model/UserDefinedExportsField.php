@@ -5,6 +5,7 @@
  * Date: 2/26/19
  * Time: 12:50 PM
  */
+namespace UserDefinedExports\Model;
 
 class UserDefinedExportsField extends DataObject
 {

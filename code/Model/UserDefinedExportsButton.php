@@ -5,6 +5,7 @@
  * Date: 2/27/19
  * Time: 9:27 AM
  */
+namespace UserDefinedExports\Model;
 
 class UserDefinedExportsButton extends DataObject
 {

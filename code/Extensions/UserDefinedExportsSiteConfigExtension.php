@@ -5,6 +5,9 @@
  * Date: 3/11/19
  * Time: 9:19 AM
  */
+namespace UserDefinedExports\Extensions;
+
+use SilverStripe\ORM\DataExtension;
 
 class UserDefinedExportsSiteConfigExtension extends DataExtension
 {

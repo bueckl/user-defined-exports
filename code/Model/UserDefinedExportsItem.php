@@ -5,6 +5,9 @@
  * Date: 2/27/19
  * Time: 9:12 AM
  */
+namespace UserDefinedExports\Model;
+
+use SilverStripe\ORM\DataObject;
 
 class UserDefinedExportsItem extends DataObject
 {
@@ -13,11 +16,11 @@ class UserDefinedExportsItem extends DataObject
     );
 
     private static $has_one= array(
-        'UserDefinedExportsFieldHolder' => 'UserDefinedExportsFieldHolder'
+        'UserDefinedExportsFieldHolder' => UserDefinedExportsFieldHolder::class
     );
 
     private static $has_many = array(
-        'UserDefinedExportsButtons' => 'UserDefinedExportsButton'
+        'UserDefinedExportsButtons' => UserDefinedExportsButton::class
     );
 
     private static $summary_fields = array(

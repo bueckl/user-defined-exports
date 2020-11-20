@@ -5,6 +5,9 @@
  * Date: 3/11/19
  * Time: 9:30 AM
  */
+namespace UserDefinedExports\Forms;
+
+use SilverStripe\Forms\GridField\GridFieldExportButton;
 
 class UserDefinedGridFieldExportButton extends GridFieldExportButton
 {
@@ -170,7 +173,7 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
     protected function genericHandle($dataFormatterClass, $ext, GridField $gridField, $request = null)
     {
         $items = $this->getItems($gridField);
-        
+
         // Allways filter out test user
         $items = $items->exclude('TestUser', 1);
 

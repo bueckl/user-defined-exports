@@ -6,6 +6,8 @@
  * Time: 9:59 AM
  */
 
+namespace UserDefinedExports\Forms;
+
 class CsvDataFormatter extends ExcelDataFormatter
 {
 
