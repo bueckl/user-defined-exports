@@ -9,3 +9,7 @@ SilverStripe\Admin\ModelAdmin:
 SilverStripe\SiteConfig\SiteConfig:
   extensions:
     - UserDefinedExports\Extensions\UserDefinedExportsSiteConfigExtension
+
+SilverStripe\Admin\LeftandMain:
+  admin_themes:
+    - 'user-defined-exports-admin'
