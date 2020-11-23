@@ -2,7 +2,6 @@
 Name: user_defined_exports
 After:
   - 'framework/*'
-  - 'cms/*'
 ---
 SilverStripe\Admin\ModelAdmin:
   extensions:
