@@ -7,7 +7,9 @@
  */
 namespace UserDefinedExports\Extensions;
 
+use SilverStripe\Forms\GridField\GridFieldExportButton;
 use SilverStripe\ORM\DataExtension;
+use UserDefinedExports\Model\UserDefinedExportsItem;
 
 class UserDefinedExportsModelAdminExtension extends DataExtension
 {
@@ -20,7 +22,7 @@ class UserDefinedExportsModelAdminExtension extends DataExtension
 
             $gridFieldName = $this->sanitiseClassName($manageModel);
             $gridField = $form->Fields()->fieldByName($gridFieldName);
-            $gridField->getConfig()->removeComponentsByType('GridFieldExportButton');
+            $gridField->getConfig()->removeComponentsByType(GridFieldExportButton::class);
 
             $exportButton = new UserDefinedGridFieldExportButton(
                 'buttons-after-left',

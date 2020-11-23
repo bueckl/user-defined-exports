@@ -7,6 +7,9 @@
  */
 namespace UserDefinedExports\Model;
 
+use SilverStripe\Admin\ModelAdmin;
+use SilverStripe\Core\Manifest\ClassLoader;
+
 class UserDefinedExportsFieldHolder extends DataObject
 {
     private static $db = array(
@@ -29,7 +32,7 @@ class UserDefinedExportsFieldHolder extends DataObject
     public function getCMSFields()
     {
         $fields = parent::getCMSFields();
-        $objArr = SS_ClassLoader::instance()->getManifest()->getDescendantsOf('ModelAdmin');
+        $objArr = ClassLoader::inst()->getManifest()->getDescendantsOf(ModelAdmin::class);
 
         $combinedArr = array_combine($objArr, $objArr);
         $fields->addFieldsToTab('Root.Main', array(

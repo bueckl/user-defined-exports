@@ -16,11 +16,11 @@ class UserDefinedExportsButton extends DataObject
     );
 
     private static $has_one= array(
-        'UserDefinedExportsItem' => 'UserDefinedExportsItem'
+        'UserDefinedExportsItem' => UserDefinedExportsItem::class
     );
 
     private static $has_many = array(
-        'UserDefinedExportsFields' => 'UserDefinedExportsField'
+        'UserDefinedExportsFields' => UserDefinedExportsField::class
     );
 
     private static $summary_fields = array(

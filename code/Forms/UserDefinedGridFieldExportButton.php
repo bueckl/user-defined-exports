@@ -7,7 +7,9 @@
  */
 namespace UserDefinedExports\Forms;
 
+use SilverStripe\Forms\GridField\GridFieldDataColumns;
 use SilverStripe\Forms\GridField\GridFieldExportButton;
+use SilverStripe\Forms\GridField\GridFieldPaginator;
 
 class UserDefinedGridFieldExportButton extends GridFieldExportButton
 {
@@ -152,7 +154,7 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
         }
         if(!empty($fieldsArr)) {
             $exportColumns = $fieldsArr;
-        } else if($dataCols = $gridField->getConfig()->getComponentByType('GridFieldDataColumns')) {
+        } else if($dataCols = $gridField->getConfig()->getComponentByType(GridFieldDataColumns::class)) {
             $exportColumns = $dataCols->getDisplayFields($gridField);
         } else {
             $exportColumns = singleton($gridField->getModelClass())->summaryFields();
@@ -162,12 +164,12 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
 
     public function handleXlsx(GridField $gridField, $request = null, $ext)
     {
-        return $this->genericHandle('ExcelDataFormatter', $ext, $gridField, $request);
+        return $this->genericHandle(ExcelDataFormatter::class, $ext, $gridField, $request);
     }
 
     public function handleCsv(GridField $gridField, $request = null, $ext)
     {
-        return $this->genericHandle('CsvDataFormatter', $ext, $gridField, $request);
+        return $this->genericHandle(CsvDataFormatter::class, $ext, $gridField, $request);
     }
 
     protected function genericHandle($dataFormatterClass, $ext, GridField $gridField, $request = null)
@@ -190,7 +192,7 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
 
     protected function getItems(GridField $gridField)
     {
-        $gridField->getConfig()->removeComponentsByType('GridFieldPaginator');
+        $gridField->getConfig()->removeComponentsByType(GridFieldPaginator::class);
 
         $items = $gridField->getManipulatedList();
 
