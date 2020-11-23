@@ -4,9 +4,9 @@ After:
   - 'framework/*'
   - 'cms/*'
 ---
-ModelAdmin:
+SilverStripe\Admin\ModelAdmin:
   extensions:
-    - UserDefinedExportsModelAdminExtension
-SiteConfig:
+    - UserDefinedExports\Extensions\UserDefinedExportsModelAdminExtension
+SilverStripe\SiteConfig\SiteConfig:
   extensions:
-    - UserDefinedExportsSiteConfigExtension
+    - UserDefinedExports\Extensions\UserDefinedExportsSiteConfigExtension
