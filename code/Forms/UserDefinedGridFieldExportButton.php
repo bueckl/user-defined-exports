@@ -55,7 +55,7 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
 
     public function handleAction(GridField $gridField, $actionName, $arguments, $data)
     {
-        $this->exportButtonID = $data['exportbutton'];
+        $this->exportButtonID = $data['ExportButtonsd'];
         if(($actionName == 'userdefinedexport') && $this->exportButtonID > 0) {
 
             if($exportID = $this->exportButtonID) {
@@ -113,9 +113,6 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
 
     public function getHTMLFragments($gridField)
     {
-
-//        $custom = Config::inst()->get(UserDefinedGridFieldExportButton::class, 'Base');
-//        $base = $custom ?: USER_DEFINED_EXPORTS_BASE;
         Requirements::javascript("bueckl/user-defined-exports:javascript/UserDefinedGridFieldExportButton.js");
 
         $button = new GridField_FormAction(
