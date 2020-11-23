@@ -8,9 +8,11 @@
 namespace UserDefinedExports\Model;
 
 use SilverStripe\Core\Config\Config;
+use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\TextField;
 use SilverStripe\ORM\DataObject;
+use SilverStripe\ORM\DataObjectSchema;
 
 class UserDefinedExportsField extends DataObject
 {
@@ -67,7 +69,7 @@ class UserDefinedExportsField extends DataObject
                 ));
             } else {
                 $className = $this->UserDefinedExportsButton()->UserDefinedExportsItem()->ManageModelName;
-                $dbFields = $className::create()->db();
+                $dbFields = Injector::inst()->get(DataObjectSchema::class)->databaseFields($className);
 
                 $arr1 = array_keys($dbFields);
                 $arrFields = array_combine($arr1, $arr1);
@@ -79,7 +81,7 @@ class UserDefinedExportsField extends DataObject
                     $arr = array_keys($relations);
                     foreach ($arr as $relation) {
                         $arrRelationFields = array();
-                        $rFields = array_keys($relations[$relation]::create()->db());
+                        $rFields = Injector::inst()->get(DataObjectSchema::class)->databaseFields($relations[$relation]);
                         foreach ($rFields as $rField){
                             $arrRelationFields[] = $relation.'.'.$rField;
                         }
