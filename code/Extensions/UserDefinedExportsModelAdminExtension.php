@@ -9,6 +9,7 @@ namespace UserDefinedExports\Extensions;
 
 use SilverStripe\Forms\GridField\GridFieldExportButton;
 use SilverStripe\ORM\DataExtension;
+use UserDefinedExports\Forms\UserDefinedGridFieldExportButton;
 use UserDefinedExports\Model\UserDefinedExportsItem;
 
 class UserDefinedExportsModelAdminExtension extends DataExtension
