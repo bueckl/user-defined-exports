@@ -118,7 +118,7 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
         $button = new GridField_FormAction(
             $gridField,
             'userdefinedexport',
-            _t('TableListField.CSVEXPORT', 'user defined Export to CSV aaa'),
+            _t('TableListField.CSVEXPORT', 'user defined Export to CSV'),
             'userdefinedexport',
             null
         );

@@ -69,7 +69,7 @@ class ExcelDataFormatter extends DataFormatter
 
         $excel = $this->getPhpExcelObject($set);
 
-        $fileData = $this->getFileData($excel, 'Excel2007');
+        $fileData = $this->getFileData($excel, 'Xlsx');
 
         return $fileData;
     }
