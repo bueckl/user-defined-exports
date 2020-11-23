@@ -26,7 +26,7 @@ class UserDefinedExportsModelAdminExtension extends DataExtension
             $gridField->getConfig()->removeComponentsByType(GridFieldExportButton::class);
 
             $exportButton = new UserDefinedGridFieldExportButton(
-                'buttons-after-left',
+                'after',
                 null,
                 $this->owner->modelClass
             );

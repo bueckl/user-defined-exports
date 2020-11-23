@@ -7,6 +7,7 @@
  */
 namespace UserDefinedExports\Forms;
 
+use SilverStripe\Control\Controller;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\GridField\GridField;
@@ -113,9 +114,9 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
     public function getHTMLFragments($gridField)
     {
 
-        $custom = Config::inst()->get(UserDefinedGridFieldExportButton::class, 'Base');
-        $base = $custom ?: USER_DEFINED_EXPORTS_BASE;
-        Requirements::javascript($base . '/javascript/UserDefinedGridFieldExportButton.js');
+//        $custom = Config::inst()->get(UserDefinedGridFieldExportButton::class, 'Base');
+//        $base = $custom ?: USER_DEFINED_EXPORTS_BASE;
+        Requirements::javascript("bueckl/user-defined-exports:javascript/UserDefinedGridFieldExportButton.js");
 
         $button = new GridField_FormAction(
             $gridField,
@@ -144,7 +145,7 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
             'Export' => '<p class="grid-csv-button">' . $button->Field() . '</p>',
         ));
         return array(
-            $this->targetFragment => $data->renderWith(__CLASS__)
+            $this->targetFragment => $data->renderWith('UserDefinedGridFieldExportButton')
         );
     }
 
