@@ -142,7 +142,7 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
 
         $data = new ArrayData(array(
             'ClassField' => $field,
-            'Export' => '<p class="grid-csv-button">' . $button->Field() . '</p>',
+            'Export' => $button->Field(),
         ));
         return array(
             $this->targetFragment => $data->renderWith('UserDefinedGridFieldExportButton')
