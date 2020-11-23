@@ -7,6 +7,7 @@
  */
 namespace UserDefinedExports\Model;
 
+use SilverStripe\Forms\TextField;
 use SilverStripe\ORM\DataObject;
 
 class UserDefinedExportsItem extends DataObject

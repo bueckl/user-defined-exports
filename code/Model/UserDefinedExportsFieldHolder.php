@@ -9,6 +9,8 @@ namespace UserDefinedExports\Model;
 
 use SilverStripe\Admin\ModelAdmin;
 use SilverStripe\Core\Manifest\ClassLoader;
+use SilverStripe\Forms\DropdownField;
+use SilverStripe\ORM\DataObject;
 
 class UserDefinedExportsFieldHolder extends DataObject
 {

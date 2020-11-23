@@ -8,6 +8,8 @@
 
 namespace UserDefinedExports\Forms;
 
+use SilverStripe\ORM\SS_List;
+
 class CsvDataFormatter extends ExcelDataFormatter
 {
 

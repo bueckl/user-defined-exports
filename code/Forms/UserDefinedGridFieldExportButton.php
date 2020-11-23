@@ -7,9 +7,21 @@
  */
 namespace UserDefinedExports\Forms;
 
+use SilverStripe\Core\Config\Config;
+use SilverStripe\Forms\DropdownField;
+use SilverStripe\Forms\GridField\GridField;
+use SilverStripe\Forms\GridField\GridField_FormAction;
 use SilverStripe\Forms\GridField\GridFieldDataColumns;
 use SilverStripe\Forms\GridField\GridFieldExportButton;
+use SilverStripe\Forms\GridField\GridFieldFilterHeader;
 use SilverStripe\Forms\GridField\GridFieldPaginator;
+use SilverStripe\Forms\GridField\GridFieldSortableHeader;
+use SilverStripe\ORM\ArrayList;
+use SilverStripe\ORM\FieldType\DBDatetime;
+use SilverStripe\View\ArrayData;
+use SilverStripe\View\Requirements;
+use UserDefinedExports\Model\UserDefinedExportsButton;
+use UserDefinedExports\Model\UserDefinedExportsItem;
 
 class UserDefinedGridFieldExportButton extends GridFieldExportButton
 {
@@ -64,7 +76,7 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
             $filename = $do->i18n_plural_name();
         }
 
-        $date = SS_Datetime::now()->value;
+        $date = DBDatetime::now();
         $dateVal = explode(" ", $date)[0];
         $timeVal = explode(" ", $date)[1];
 
@@ -101,7 +113,7 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
     public function getHTMLFragments($gridField)
     {
 
-        $custom = Config::inst()->get('UserDefinedGridFieldExportButton', 'Base');
+        $custom = Config::inst()->get(UserDefinedGridFieldExportButton::class, 'Base');
         $base = $custom ?: USER_DEFINED_EXPORTS_BASE;
         Requirements::javascript($base . '/javascript/UserDefinedGridFieldExportButton.js');
 

@@ -7,7 +7,11 @@
  */
 namespace UserDefinedExports\Extensions;
 
+use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\GridField\GridField;
+use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
 use SilverStripe\ORM\DataExtension;
+use UserDefinedExports\Model\UserDefinedExportsFieldHolder;
 
 class UserDefinedExportsSiteConfigExtension extends DataExtension
 {

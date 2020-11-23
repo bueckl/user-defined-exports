@@ -7,6 +7,13 @@
  */
 namespace UserDefinedExports\Model;
 
+use SilverStripe\Forms\DropdownField;
+use SilverStripe\Forms\GridField\GridField;
+use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
+use SilverStripe\Forms\TextField;
+use SilverStripe\ORM\DataObject;
+use Symbiote\GridFieldExtensions\GridFieldOrderableRows;
+
 class UserDefinedExportsButton extends DataObject
 {
     private static $db = array(
