@@ -55,7 +55,7 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
 
     public function handleAction(GridField $gridField, $actionName, $arguments, $data)
     {
-        $this->exportButtonID = $data['ExportButtonsd'];
+        $this->exportButtonID = $data['exportbutton'];
         if(($actionName == 'userdefinedexport') && $this->exportButtonID > 0) {
 
             if($exportID = $this->exportButtonID) {

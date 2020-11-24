@@ -4,15 +4,13 @@
 
         $('.user-defined-export-button').entwine({
             onchange: function () {
-                console.log('..on change called...');
                 var option = $('option:selected', this).val();
-                console.log(option);
                 $('.js_export_button').attr('data-exportbid', option);
             }
         });
 
 
-        $('.ss-gridfield .js_export_button').entwine({
+        $('#Form_EditForm_action_userdefinedexport').entwine({
             onclick: function(e){
                 var exportID = $('.js_export_button').attr('data-exportbid');
                 if(exportID > 0) {
