@@ -12,6 +12,10 @@
   "require": {
     "silverstripe/framework"    : "~4.0",
     "phpoffice/phpspreadsheet" : "dev-master"
+  },
+  "extra": {
+    "expose": [
+      "javascript"
+    ]
   }
-
 }

@@ -70,9 +70,10 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
     }
 
 
-    protected function setHeader($gridField, $ext, $filename = '')
-    {
+    public function updateFileName($gridField, $filename) {
+
         $do = singleton($gridField->getModelClass());
+
         if (!$filename) {
             $filename = $do->i18n_plural_name();
         }
@@ -85,12 +86,17 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
         $m = explode("-", $dateVal)[1];
         $d = explode("-", $dateVal)[2];
 
-        $updateFileName = $filename.'_'.$d.'_'.$m.'_'.$y.'_'.$timeVal;
+        return $filename.'_'.$d.'_'.$m.'_'.$y.'_'.$timeVal;
+    }
+
+
+    protected function setHeader($gridField, $ext, $filename = '')
+    {
         Controller::curr()->getResponse()
             ->addHeader(
                 "Content-Disposition",
                 'attachment; filename="' .
-                $updateFileName .
+                $this->updateFileName($gridField, $filename) .
                 '.' . $ext . '"'
             );
     }
