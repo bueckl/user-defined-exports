@@ -28,6 +28,8 @@ class UserDefinedExportsItem extends DataObject
         'ManageModelName'
     );
 
+    private static $table_name = 'UserDefinedExportsItem';
+
     public function getTitle()
     {
         return $this->ManageModelName;

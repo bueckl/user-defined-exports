@@ -35,6 +35,8 @@ class UserDefinedExportsField extends DataObject
 
     private static $default_sort = 'Sort';
 
+    private static $table_name = 'UserDefinedExportsField';
+
     public function validate()
     {
         $result = parent::validate();

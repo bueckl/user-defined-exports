@@ -34,6 +34,8 @@ class UserDefinedExportsButton extends DataObject
         'ExportButtonName'
     );
 
+    private static $table_name = 'UserDefinedExportsButton';
+
     public function getTitle()
     {
         return $this->ExportButtonName;

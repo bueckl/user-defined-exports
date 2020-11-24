@@ -26,6 +26,8 @@ class UserDefinedExportsFieldHolder extends DataObject
         'ModelAdminName'
     );
 
+    private static $table_name = 'UserDefinedExportsFieldHolder';
+
     public function getTitle()
     {
         return $this->ModelAdminName;
