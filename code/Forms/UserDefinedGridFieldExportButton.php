@@ -124,13 +124,13 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
         $button = new GridField_FormAction(
             $gridField,
             'userdefinedexport',
-            _t('TableListField.CSVEXPORT', 'user defined Export to CSV'),
+            _t('TableListField.CSVEXPORT', 'Export selected'),
             'userdefinedexport',
             null
         );
         $button->setAttribute('data-icon', 'download-csv');
         $button->setAttribute('data-exportbid', '0');
-        $button->addExtraClass('js_export_button');
+        $button->addExtraClass('js_export_button btn mb-5 btn-primary');
         $button->setForm($gridField->getForm());
 
         $exportItem = UserDefinedExportsItem::get()->filter('ManageModelName',$this->modelClassName)->first();
