@@ -140,7 +140,6 @@ class ExcelDataFormatter extends DataFormatter
             $dbFields = array_diff_key($dbFields, array_combine($this->removeFields,$this->removeFields));
         }
 
-
         return $dbFields;
     }
 
@@ -154,6 +153,8 @@ class ExcelDataFormatter extends DataFormatter
         // Get the first object. We'll need it to know what type of objects we
         // are dealing with
         $first = $set->first();
+
+
 
         // Get the Excel object
         $excel = $this->setupExcel($first);
@@ -176,13 +177,12 @@ class ExcelDataFormatter extends DataFormatter
             $sheet->freezePane("B2");
             // Auto sizing all the columns
             $col = sizeof($fields);
-            for ($i = 0; $i < $col; $i++) {
+            for ($i = 1; $i <= $col; $i++) {
                 $sheet->getColumnDimension(Coordinate::stringFromColumnIndex($i))
                     ->setAutoSize(true);
             }
 
         }
-
         return $excel;
     }
 
@@ -233,7 +233,7 @@ class ExcelDataFormatter extends DataFormatter
     {
         // Counter
         $row = 1;
-        $col = 0;
+        $col = 1;
 
         $useLabelsAsHeaders = $this->getUseLabelsAsHeaders();
 
@@ -244,22 +244,16 @@ class ExcelDataFormatter extends DataFormatter
             // debug::dump( $customFields[$field] );
             // debug::dump( $customFields[$type] );
             //$header = $useLabelsAsHeaders ? $do->fieldLabel($field) : $field;
-            $header = $customFields[$field] != "" ? $customFields[$field] : $do->fieldLabel($field);
+            $header = array_key_exists($field, $customFields) != null ? $customFields[$field] : $do->fieldLabel($field);
             $sheet->setCellValueByColumnAndRow($col, $row, $header);
             $col++;
         }
-
-
-
         // Get the last column
         $col--;
         $endcol = Coordinate::stringFromColumnIndex($col);
-
         // Set Autofilters and Header row style
         $sheet->setAutoFilter("A1:{$endcol}1");
         $sheet->getStyle("A1:{$endcol}1")->getFont()->setBold(true);
-
-
         return $sheet;
     }
 
@@ -277,7 +271,7 @@ class ExcelDataFormatter extends DataFormatter
         array $fields
     ) {
         $row = $sheet->getHighestRow() + 1;
-        $col = 0;
+        $col = 1;
 
         foreach ($fields as $field => $type) {
             if ($item->hasField($field) || $item->hasMethod("get{$field}")) {
