@@ -244,7 +244,12 @@ class ExcelDataFormatter extends DataFormatter
             // debug::dump( $customFields[$field] );
             // debug::dump( $customFields[$type] );
             //$header = $useLabelsAsHeaders ? $do->fieldLabel($field) : $field;
-            $header = array_key_exists($field, $customFields) != null ? $customFields[$field] : $do->fieldLabel($field);
+            if(array_key_exists($field, $customFields)) {
+                $fieldLabel = $customFields[$field] != null ? $customFields[$field] : $do->fieldLabel($field);
+            } else {
+                $fieldLabel = $do->fieldLabel($field);
+            }
+            $header = $fieldLabel;
             $sheet->setCellValueByColumnAndRow($col, $row, $header);
             $col++;
         }
