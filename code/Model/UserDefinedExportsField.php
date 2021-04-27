@@ -77,9 +77,12 @@ class UserDefinedExportsField extends DataObject
                 $arrFields = array_combine($arr1, $arr1);
 
                 $relationDbFields = array();
+
                 $relations = Config::inst()->get($className, 'has_one', Config::UNINHERITED);
 
+
                 if($relations) {
+
                     $arr = array_keys($relations);
                     foreach ($arr as $relation) {
                         $arrRelationFields = array();
@@ -92,6 +95,38 @@ class UserDefinedExportsField extends DataObject
                     $newFieldsArr = array_combine($relationDbFields, $relationDbFields);
                     $arrFields = array_merge($arrFields, $newFieldsArr);
                 }
+
+
+
+                $relations_belongs_to = Config::inst()->get($className, 'belongs_to', Config::UNINHERITED);
+
+
+                if ($relations_belongs_to) {
+
+                    $arr = array_keys($relations_belongs_to);
+                    foreach ($arr as $relation) {
+
+                        
+                        $arrRelationFields = array();
+                        $rFields = Injector::inst()->get(DataObjectSchema::class)->databaseFields($relations_belongs_to[$relation]);
+                        // important for belongs_to
+                        $rFields = array_keys($rFields);
+
+                        foreach ($rFields as $rField){
+                            $arrRelationFields[] = $relation.'.'.$rField;
+                        }
+                        $relationDbFields = array_merge($relationDbFields, $arrRelationFields);
+                    }
+                    
+                    $newFieldsArr = array_combine($relationDbFields, $relationDbFields);
+                    $arrFields_belongs_to = array_merge($arrFields, $newFieldsArr);
+                }
+
+
+
+                $arrFields = array_merge( $arrFields, $arrFields_belongs_to);
+
+
                 $fields->addFieldsToTab('Root.Main', array(
                     DropdownField::create('OriginalExportField', 'Field')
                         ->setSource($arrFields),

@@ -113,6 +113,20 @@ class ExcelDataFormatter extends DataFormatter
                         }
                     }
                 }
+
+                 // RELATION HANDLING JOCHEN
+                if($hasOne = $obj->belongsTo()) {
+                    foreach($hasOne as $relationship => $class) {
+
+                        $parts = explode(".", $fieldName);
+                        if (count($parts) == 2) {
+                            // It's a relation!
+                            $relation = $parts[0];
+                            $dbFields[$fieldName] = $parts[1];
+                        }
+                    }
+                }
+
                 // END RELATION HANDLING
 
             }
