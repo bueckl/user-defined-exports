@@ -123,10 +123,12 @@ class UserDefinedExportsField extends DataObject
                 }
 
 
+                
+                if ($arrFields_belongs_to) {
+                    $arrFields = array_merge( $arrFields, $arrFields_belongs_to);    
+                }
 
-                $arrFields = array_merge( $arrFields, $arrFields_belongs_to);
-
-
+                
                 $fields->addFieldsToTab('Root.Main', array(
                     DropdownField::create('OriginalExportField', 'Field')
                         ->setSource($arrFields),
