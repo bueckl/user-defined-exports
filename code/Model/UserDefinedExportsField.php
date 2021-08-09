@@ -20,7 +20,7 @@ class UserDefinedExportsField extends DataObject
     private static $db = array(
         'OriginalExportField' => 'Varchar(255)',
         'ExportFieldLabel' => 'Varchar(255)',
-        'SelectedType' => "Enum('DB and Relations,Functions','DB and Relations')",
+        'SelectedType' => "Enum('DB and Relations,Functions, Pre defined columns','DB and Relations')",
         'Sort' => 'Int'
     );
 
@@ -124,7 +124,7 @@ class UserDefinedExportsField extends DataObject
 
 
                 
-                if ($arrFields_belongs_to) {
+                if (isset($arrFields_belongs_to) && $arrFields_belongs_to) {
                     $arrFields = array_merge( $arrFields, $arrFields_belongs_to);    
                 }
 
