@@ -19,7 +19,7 @@ class GridFieldUserDefinedExportsFieldsDetailForm_ItemRequest extends GridFieldD
         $type = isset($data['SelectedType']) ? $data['SelectedType'] : '';
 
 
-        if($type !== 'DB and Relations' &&  $type !== 'Functions') {
+        if($type && $type !== 'DB and Relations' &&  $type !== 'Functions') {
             // Check permission
             if (!$this->record->canEdit()) {
                 $this->httpError(403, _t(
@@ -39,22 +39,28 @@ class GridFieldUserDefinedExportsFieldsDetailForm_ItemRequest extends GridFieldD
             $object = new $class();
             $arr = $object->$type();
 
+
+
             if(!empty($arr)) {
                 foreach ($arr as $key => $item) {
-                    $existingField = UserDefinedExportsField::get()->filter('OriginalExportField', $key)->first();
+                    $existingField = UserDefinedExportsField::get()->filter([
+                        'UserDefinedExportsButtonID' => $button,
+                        'OriginalExportField' => $key,
+                    ])->first();
                     if($existingField) {
-                        $existingField->update([
-                            'SelectedType' => $type,
-                            'UserDefinedExportsButtonID' => $button,
-                            'ExportFieldLabel' => $item,
-                        ]);
-                        $existingField->write();
+//                        $existingField->update([
+//                            'SelectedType' => $type,
+//                            'UserDefinedExportsButtonID' => $button,
+//                            'ExportFieldLabel' => '', //we have to keep this empty
+//                        ]);
+//                        $existingField->write();
                     } else {
                         $exportField = new UserDefinedExportsField();
-                        $exportField->SelectedType = $type;
+                        $exportField->CustomMethod = $type;
+                        $exportField->SelectedType = ''; //cant add because not available enum
                         $exportField->UserDefinedExportsButtonID = $button;
                         $exportField->OriginalExportField = $key;
-                        $exportField->ExportFieldLabel = $item;
+                        $exportField->ExportFieldLabel = '';
                         $exportField->write();
                     }
                 }

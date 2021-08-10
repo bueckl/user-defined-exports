@@ -21,6 +21,7 @@ class UserDefinedExportsField extends DataObject
         'OriginalExportField' => 'Varchar(255)',
         'ExportFieldLabel' => 'Varchar(255)',
         'SelectedType' => "Enum('DB and Relations,Functions','DB and Relations')",
+        'CustomMethod' => 'Varchar(255)',
         'Sort' => 'Int'
     );
 
@@ -61,6 +62,7 @@ class UserDefinedExportsField extends DataObject
             'SelectedType',
             'ExportFieldLabel',
             'OriginalExportField',
+            'CustomMethod',
         ));
 
         if($this->ID) {

@@ -163,10 +163,21 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
         $exportButton = $this->getExportButton();
         $exportFields = $exportButton->UserDefinedExportsFields();
         $fieldsArr = array();
+        $customMethodsArray = array();
 
         foreach ($exportFields as $exportField) {
-            $label = $exportField->ExportFieldLabel ? $exportField->ExportFieldLabel : '';
-            $fieldsArr[$exportField->OriginalExportField] = $label;
+
+            if($exportField->CustomMethod) {
+                $customMethodsArray[] = $exportField->CustomMethod;
+            } else {
+                $label = $exportField->ExportFieldLabel ? $exportField->ExportFieldLabel : '';
+                $fieldsArr[$exportField->OriginalExportField] = $label;
+            }
+        }
+
+        $customMethods = array_unique($customMethodsArray);
+        foreach ($customMethods as $method) {
+            $fieldsArr[$method] = '';
         }
 
         if(!empty($fieldsArr)) {

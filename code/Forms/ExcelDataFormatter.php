@@ -94,6 +94,8 @@ class ExcelDataFormatter extends DataFormatter
         // if custom fields are specified, only select these
         if(is_array($this->customFields)) {
 
+
+
             foreach($this->customFields as $fieldName => $title) {
 
                 // @todo Possible security risk by making methods accessible - implement field-level security
@@ -126,6 +128,11 @@ class ExcelDataFormatter extends DataFormatter
                         }
                     }
                 }
+
+                if($obj->hasMethod("{$fieldName}")) {
+                    $dbFields[$fieldName] = '';
+                }
+
 
                 // END RELATION HANDLING
 
@@ -180,7 +187,22 @@ class ExcelDataFormatter extends DataFormatter
 
             // Set up the header row
             $fields = $this->getFieldsForObj($first);
-            $this->headerRow($sheet, $fields, $first);
+            $allFields = [];
+
+            foreach ($fields as $field => $label) {
+                if($first->hasMethod("{$field}")) {
+                    foreach ($first->$field() as $customField => $value) {
+                        $allFields[$customField] = '';
+                    }
+                } else {
+                    $allFields[$field] = $label;
+                }
+            }
+
+
+
+
+            $this->headerRow($sheet, $allFields, $first);
 
             // Add a new row for each DataObject
             foreach ($set as $item) {
@@ -258,6 +280,7 @@ class ExcelDataFormatter extends DataFormatter
             // debug::dump( $customFields[$field] );
             // debug::dump( $customFields[$type] );
             //$header = $useLabelsAsHeaders ? $do->fieldLabel($field) : $field;
+
             if(array_key_exists($field, $customFields)) {
                 $fieldLabel = $customFields[$field] != null ? $customFields[$field] : $do->fieldLabel($field);
             } else {
@@ -266,7 +289,7 @@ class ExcelDataFormatter extends DataFormatter
             $header = $fieldLabel;
             $sheet->setCellValueByColumnAndRow($col, $row, $header);
             $col++;
-        }
+        } //die();
         // Get the last column
         $col--;
         $endcol = Coordinate::stringFromColumnIndex($col);
@@ -295,11 +318,25 @@ class ExcelDataFormatter extends DataFormatter
         foreach ($fields as $field => $type) {
             if ($item->hasField($field) || $item->hasMethod("get{$field}")) {
                 $value = $item->$field;
+                $sheet->setCellValueByColumnAndRow($col, $row, $value);
+            } elseif ($item->hasMethod("{$field}")) {
+                $arrayData = $item->$field();
+                $i = 0;
+                foreach ($arrayData as $dataField => $dataValue) {
+                    $value = $dataValue;
+                    $sheet->setCellValueByColumnAndRow($col, $row, $value);
+                    if($i != count($arrayData) - 1) {
+                        $col++;
+                    }
+                    $i++;
+                }
+
             } else {
                 $viewer = SSViewer::fromString('$' . $field . '.RAW');
                 $value = $item->renderWith($viewer, true);
+                $sheet->setCellValueByColumnAndRow($col, $row, $value);
             }
-            $sheet->setCellValueByColumnAndRow($col, $row, $value);
+
             $col++;
         }
 
