@@ -39,12 +39,22 @@ class GridFieldUserDefinedExportsFieldsDetailForm_ItemRequest extends GridFieldD
             $arr = $object::config()->user_defined_export_column_mapping;
             if(!empty($arr)) {
                 foreach ($arr as $key => $item) {
-                    $exportField = new UserDefinedExportsField();
-                    $exportField->SelectedType = $type;
-                    $exportField->UserDefinedExportsButtonID = $button;
-                    $exportField->OriginalExportField = $key;
-                    $exportField->ExportFieldLabel = $item;
-                    $exportField->write();
+                    $existingField = UserDefinedExportsField::get()->filter('OriginalExportField', $key)->first();
+                    if($existingField) {
+                        $existingField->update([
+                            'SelectedType' => $type,
+                            'UserDefinedExportsButtonID' => $button,
+                            'ExportFieldLabel' => $item,
+                        ]);
+                        $existingField->write();
+                    } else {
+                        $exportField = new UserDefinedExportsField();
+                        $exportField->SelectedType = $type;
+                        $exportField->UserDefinedExportsButtonID = $button;
+                        $exportField->OriginalExportField = $key;
+                        $exportField->ExportFieldLabel = $item;
+                        $exportField->write();
+                    }
                 }
 
                 $link = '<a href="' . $this->Link('edit') . '">"'
