@@ -20,7 +20,7 @@ class UserDefinedExportsField extends DataObject
     private static $db = array(
         'OriginalExportField' => 'Varchar(255)',
         'ExportFieldLabel' => 'Varchar(255)',
-        'SelectedType' => "Enum('DB and Relations,Functions, Pre defined columns','DB and Relations')",
+        'SelectedType' => "Enum('DB and Relations,Functions','DB and Relations')",
         'Sort' => 'Int'
     );
 
@@ -136,9 +136,20 @@ class UserDefinedExportsField extends DataObject
                 ));
             }
         } else {
+            $buttonObject = UserDefinedExportsButton::get()->filter('ID',$this->UserDefinedExportsButtonID)->first();
+            $exportItem = UserDefinedExportsItem::get()->filter('ID', $buttonObject->UserDefinedExportsItemID)->first();
+            $class = $exportItem->ManageModelName;
+            $object = new $class();
+
+            if($object->hasMethod('customExportMethods')) {
+                $dropDownArray = array_merge($this->dbObject('SelectedType')->enumValues(), $object->customExportMethods());
+            } else {
+                $dropDownArray = $this->dbObject('SelectedType')->enumValues();
+            }
+
             $fields->addFieldsToTab('Root.Main',array(
                 DropdownField::create('SelectedType', 'Select the summary field type and save for continue')
-                    ->setSource($this->dbObject('SelectedType')->enumValues())
+                    ->setSource($dropDownArray)
             ));
         }
 

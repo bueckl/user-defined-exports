@@ -17,8 +17,9 @@ class GridFieldUserDefinedExportsFieldsDetailForm_ItemRequest extends GridFieldD
     {
 
         $type = isset($data['SelectedType']) ? $data['SelectedType'] : '';
-        if($type == 'Pre defined columns') {
 
+
+        if($type !== 'DB and Relations' &&  $type !== 'Functions') {
             // Check permission
             if (!$this->record->canEdit()) {
                 $this->httpError(403, _t(
@@ -36,7 +37,8 @@ class GridFieldUserDefinedExportsFieldsDetailForm_ItemRequest extends GridFieldD
 
             $class = $exportItem->ManageModelName;
             $object = new $class();
-            $arr = $object::config()->user_defined_export_column_mapping;
+            $arr = $object->$type();
+
             if(!empty($arr)) {
                 foreach ($arr as $key => $item) {
                     $existingField = UserDefinedExportsField::get()->filter('OriginalExportField', $key)->first();
