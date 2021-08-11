@@ -31,7 +31,9 @@ class UserDefinedExportsField extends DataObject
 
     private static $summary_fields = array(
         'OriginalExportField',
-        'ExportFieldLabel'
+        'ExportFieldLabel',
+        'CustomMethod',
+        'SelectedType'
     );
 
     private static $default_sort = 'Sort';
