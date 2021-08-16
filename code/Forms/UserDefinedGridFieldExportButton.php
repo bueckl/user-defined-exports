@@ -224,7 +224,10 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
     {
         $gridField->getConfig()->removeComponentsByType(GridFieldPaginator::class);
 
-        $items = $gridField->getManipulatedList();
+//        $items = $gridField->getManipulatedList();
+//        $columns = $gridField->State->GridFieldFilterHeader->Columns(null);
+
+        $items = $gridField->getList();
 
         foreach ($gridField->getConfig()->getComponents() as $component) {
             if ($component instanceof GridFieldFilterHeader || $component instanceof GridFieldSortableHeader) {
@@ -232,6 +235,7 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
             }
         }
 
+        $gridField->getList();
         $arrayList = new ArrayList();
 
         foreach ($items->limit(null) as $item) {
@@ -245,4 +249,3 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
         return $arrayList;
     }
 }
-
