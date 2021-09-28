@@ -18,6 +18,9 @@ class GridFieldUserDefinedExportsFieldsDetailForm_ItemRequest extends GridFieldD
 
         $type = isset($data['SelectedType']) ? $data['SelectedType'] : '';
 
+        if ($type=="EventModuleSlotsToArray") {
+            
+        }
 
         if($type && $type !== 'DB and Relations' &&  $type !== 'Functions') {
             // Check permission
@@ -38,8 +41,7 @@ class GridFieldUserDefinedExportsFieldsDetailForm_ItemRequest extends GridFieldD
             $class = $exportItem->ManageModelName;
             $object = new $class();
             $arr = $object->$type();
-
-
+            
 
             if(!empty($arr)) {
                 foreach ($arr as $key => $item) {
@@ -80,7 +82,7 @@ class GridFieldUserDefinedExportsFieldsDetailForm_ItemRequest extends GridFieldD
                 $messageType = 'good';
                 $result = ValidationResult::CAST_HTML;
             } else {
-                $message = 'There are no array data';
+                $message = 'There are is array data';
                 $messageType = 'error';
                 $result = ValidationResult::CAST_TEXT;
             }

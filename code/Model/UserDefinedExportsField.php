@@ -91,6 +91,10 @@ class UserDefinedExportsField extends DataObject
                     foreach ($arr as $relation) {
                         $arrRelationFields = array();
                         $rFields = Injector::inst()->get(DataObjectSchema::class)->databaseFields($relations[$relation]);
+
+                        // important for belongs_to
+                        $rFields = array_keys($rFields);
+                        
                         foreach ($rFields as $rField){
                             $arrRelationFields[] = $relation.'.'.$rField;
                         }
