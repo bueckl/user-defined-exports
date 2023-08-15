@@ -318,7 +318,13 @@ class ExcelDataFormatter extends DataFormatter
         foreach ($fields as $field => $type) {
             if ($item->hasField($field) || $item->hasMethod("get{$field}")) {
                 $value = $item->$field;
-                $sheet->setCellValueByColumnAndRow($col, $row, $value);
+                
+                if($field == 'Cell' || $field == 'Phone' || $field == 'UDID') {
+                    $sheet->setCellValueExplicitByColumnAndRow($col, $row, $value, DataType::TYPE_STRING);
+                } else {
+                    $sheet->setCellValueByColumnAndRow($col, $row, $value);
+                }
+                
             } elseif ($item->hasMethod("{$field}")) {
                 $arrayData = $item->$field();
                 $i = 0;
