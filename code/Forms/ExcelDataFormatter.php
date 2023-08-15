@@ -19,6 +19,7 @@ use SilverStripe\ORM\SS_List;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Security;
 use SilverStripe\View\SSViewer;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
 
 class ExcelDataFormatter extends DataFormatter
 {
