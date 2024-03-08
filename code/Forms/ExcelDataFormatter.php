@@ -217,6 +217,7 @@ class ExcelDataFormatter extends DataFormatter
             for ($i = 1; $i <= $col; $i++) {
                 $sheet->getColumnDimension(Coordinate::stringFromColumnIndex($i))
                     ->setAutoSize(true);
+
             }
 
         }
@@ -300,6 +301,17 @@ class ExcelDataFormatter extends DataFormatter
         return $sheet;
     }
 
+
+    protected function columnNameFromIndex($index) {
+        $index--; // Adjust so that 1 = A, 2 = B, etc.
+        $letter = '';
+        while ($index >= 0) {
+            $letter = chr($index % 26 + 65) . $letter;
+            $index = floor($index / 26) - 1;
+        }
+        return $letter;
+    }
+
     /**
      * Add a new row to a {@link PHPExcel_Worksheet} based of a
      * {@link DataObjectInterface}
@@ -324,6 +336,19 @@ class ExcelDataFormatter extends DataFormatter
                     $sheet->setCellValueExplicitByColumnAndRow($col, $row, $value, DataType::TYPE_STRING);
                 } else {
                     $sheet->setCellValueByColumnAndRow($col, $row, $value);
+                }
+
+                if ($field == 'Events' || $field == 'Event' || $field == 'MemberSubEventsString') {
+                    $cellCoordinate = $this->columnNameFromIndex($col) . $row;
+                    $sheet->getStyle($cellCoordinate)
+                          ->getAlignment()                          
+                          ->setWrapText(true);
+                    
+                    // Set background color
+                    // $sheet->getStyle($cellCoordinate)->getFill()
+                    // ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                    // ->getStartColor()->setARGB('FFFF00'); // Yellow color, change 'FFFF00' to your desired color
+
                 }
                 
             } elseif ($item->hasMethod("{$field}")) {
