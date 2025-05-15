@@ -279,19 +279,16 @@ class ExcelDataFormatter extends DataFormatter
         $customFields = $this->customFields;
 
         foreach ($fields as $field => $type) {
-            // debug::dump( $customFields[$field] );
-            // debug::dump( $customFields[$type] );
-            //$header = $useLabelsAsHeaders ? $do->fieldLabel($field) : $field;
-
             if(array_key_exists($field, $customFields)) {
-                $fieldLabel = $customFields[$field] != null ? $customFields[$field] : $do->fieldLabel($field);
+                $fieldLabel = $customFields[$field] != null ? $customFields[$field] : ($do->hasMethod('fieldLabel') ? $do->fieldLabel($field) : $field);
             } else {
-                $fieldLabel = $do->fieldLabel($field);
+                $fieldLabel = $do->hasMethod('fieldLabel') ? $do->fieldLabel($field) : $field;
             }
             $header = $fieldLabel;
-            $sheet->setCellValueByColumnAndRow($col, $row, $header);
+            $cellCoordinate = Coordinate::stringFromColumnIndex($col) . $row;
+            $sheet->setCellValue($cellCoordinate, $header);
             $col++;
-        } //die();
+        }
         // Get the last column
         $col--;
         $endcol = Coordinate::stringFromColumnIndex($col);
@@ -333,9 +330,11 @@ class ExcelDataFormatter extends DataFormatter
                 $value = $item->$field;
                 
                 if($field == 'Cell' || $field == 'Phone' || $field == 'UDID') {
-                    $sheet->setCellValueExplicitByColumnAndRow($col, $row, $value, DataType::TYPE_STRING);
+                    $cellCoordinate = Coordinate::stringFromColumnIndex($col) . $row;
+                    $sheet->setCellValueExplicit($cellCoordinate, $value, DataType::TYPE_STRING);
                 } else {
-                    $sheet->setCellValueByColumnAndRow($col, $row, $value);
+                    $cellCoordinate = Coordinate::stringFromColumnIndex($col) . $row;
+                    $sheet->setCellValue($cellCoordinate, $value);
                 }
 
                 if ($field == 'Events' || $field == 'Event' || $field == 'MemberSubEventsString') {
@@ -356,7 +355,8 @@ class ExcelDataFormatter extends DataFormatter
                 $i = 0;
                 foreach ($arrayData as $dataField => $dataValue) {
                     $value = $dataValue;
-                    $sheet->setCellValueByColumnAndRow($col, $row, $value);
+                    $cellCoordinate = Coordinate::stringFromColumnIndex($col) . $row;
+                    $sheet->setCellValue($cellCoordinate, $value);
                     if($i != count($arrayData) - 1) {
                         $col++;
                     }
@@ -366,7 +366,8 @@ class ExcelDataFormatter extends DataFormatter
             } else {
                 $viewer = SSViewer::fromString('$' . $field . '.RAW');
                 $value = $item->renderWith($viewer, true);
-                $sheet->setCellValueByColumnAndRow($col, $row, $value);
+                $cellCoordinate = Coordinate::stringFromColumnIndex($col) . $row;
+                $sheet->setCellValue($cellCoordinate, $value);
             }
 
             $col++;
