@@ -11,7 +11,7 @@
     }],
   "require": {
     "silverstripe/framework"    : "~4.0",
-    "phpoffice/phpspreadsheet" : "1.18.0"
+    "phpoffice/phpspreadsheet" : "4.*"
   },
   "extra": {
     "expose": [
