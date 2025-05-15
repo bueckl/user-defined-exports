@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Koshala Manojeewa
- * Date: 3/11/19
- * Time: 10:25 AM
- */
+
 namespace UserDefinedExports\Forms;
 
 use ExcelExport\DataFormatter;
