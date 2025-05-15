@@ -10,7 +10,7 @@
       "email": "jochen@guelden.org"
     }],
   "require": {
-    "silverstripe/framework"    : "~4.0",
+    "silverstripe/framework"    : "~5.0",
     "phpoffice/phpspreadsheet" : "4.*"
   },
   "extra": {
