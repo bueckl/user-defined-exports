@@ -130,7 +130,7 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
         );
         // $button->setAttribute('data-icon', 'download-csv');
         $button->setAttribute('data-exportbid', '0');
-        $button->addExtraClass('js_export_button btn mb-5 btn-primary font-icon-download');
+        $button->addExtraClass('js_export_button btn mb-5 btn-primary font-icon-p-download');
         $button->setForm($gridField->getForm());
 
         $exportItem = UserDefinedExportsItem::get()->filter('ManageModelName',$this->modelClassName)->first();
