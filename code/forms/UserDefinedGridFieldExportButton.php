@@ -5,6 +5,24 @@
  * Date: 3/11/19
  * Time: 9:30 AM
  */
+namespace UserDefinedExports\Forms;
+
+use SilverStripe\Control\Controller;
+use SilverStripe\Core\Config\Config;
+use SilverStripe\Forms\DropdownField;
+use SilverStripe\Forms\GridField\GridField;
+use SilverStripe\Forms\GridField\GridField_FormAction;
+use SilverStripe\Forms\GridField\GridFieldDataColumns;
+use SilverStripe\Forms\GridField\GridFieldExportButton;
+use SilverStripe\Forms\GridField\GridFieldFilterHeader;
+use SilverStripe\Forms\GridField\GridFieldPaginator;
+use SilverStripe\Forms\GridField\GridFieldSortableHeader;
+use SilverStripe\ORM\ArrayList;
+use SilverStripe\ORM\FieldType\DBDatetime;
+use SilverStripe\View\ArrayData;
+use SilverStripe\View\Requirements;
+use UserDefinedExports\Model\UserDefinedExportsButton;
+use UserDefinedExports\Model\UserDefinedExportsItem;
 
 class UserDefinedGridFieldExportButton extends GridFieldExportButton
 {
@@ -52,14 +70,15 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
     }
 
 
-    protected function setHeader($gridField, $ext, $filename = '')
-    {
+    public function updateFileName($gridField, $filename) {
+
         $do = singleton($gridField->getModelClass());
+
         if (!$filename) {
             $filename = $do->i18n_plural_name();
         }
 
-        $date = SS_Datetime::now()->value;
+        $date = DBDatetime::now();
         $dateVal = explode(" ", $date)[0];
         $timeVal = explode(" ", $date)[1];
 
@@ -67,12 +86,17 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
         $m = explode("-", $dateVal)[1];
         $d = explode("-", $dateVal)[2];
 
-        $updateFileName = $filename.'_'.$d.'_'.$m.'_'.$y.'_'.$timeVal;
+        return $filename.'_'.$d.'_'.$m.'_'.$y.'_'.$timeVal;
+    }
+
+
+    protected function setHeader($gridField, $ext, $filename = '')
+    {
         Controller::curr()->getResponse()
             ->addHeader(
                 "Content-Disposition",
                 'attachment; filename="' .
-                $updateFileName .
+                $this->updateFileName($gridField, $filename) .
                 '.' . $ext . '"'
             );
     }
@@ -95,21 +119,18 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
 
     public function getHTMLFragments($gridField)
     {
-
-        $custom = Config::inst()->get('UserDefinedGridFieldExportButton', 'Base');
-        $base = $custom ?: USER_DEFINED_EXPORTS_BASE;
-        Requirements::javascript($base . '/javascript/UserDefinedGridFieldExportButton.js');
+        Requirements::javascript("bueckl/user-defined-exports:javascript/UserDefinedGridFieldExportButton.js");
 
         $button = new GridField_FormAction(
             $gridField,
             'userdefinedexport',
-            _t('TableListField.CSVEXPORT', 'user defined Export to CSV aaa'),
+            _t('TableListField.CSVEXPORT', 'Export selected'),
             'userdefinedexport',
             null
         );
-        $button->setAttribute('data-icon', 'download-csv');
+        // $button->setAttribute('data-icon', 'download-csv');
         $button->setAttribute('data-exportbid', '0');
-        $button->addExtraClass('js_export_button');
+        $button->addExtraClass('js_export_button btn mb-5 btn-primary font-icon-download');
         $button->setForm($gridField->getForm());
 
         $exportItem = UserDefinedExportsItem::get()->filter('ManageModelName',$this->modelClassName)->first();
@@ -124,10 +145,10 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
 
         $data = new ArrayData(array(
             'ClassField' => $field,
-            'Export' => '<p class="grid-csv-button">' . $button->Field() . '</p>',
+            'Export' => $button->Field(),
         ));
         return array(
-            $this->targetFragment => $data->renderWith(__CLASS__)
+            $this->targetFragment => $data->renderWith('UserDefinedGridFieldExportButton')
         );
     }
 
@@ -142,14 +163,26 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
         $exportButton = $this->getExportButton();
         $exportFields = $exportButton->UserDefinedExportsFields();
         $fieldsArr = array();
+        $customMethodsArray = array();
 
         foreach ($exportFields as $exportField) {
-            $label = $exportField->ExportFieldLabel ? $exportField->ExportFieldLabel : '';
-            $fieldsArr[$exportField->OriginalExportField] = $label;
+
+            if($exportField->CustomMethod) {
+                $customMethodsArray[] = $exportField->CustomMethod;
+            } else {
+                $label = $exportField->ExportFieldLabel ? $exportField->ExportFieldLabel : '';
+                $fieldsArr[$exportField->OriginalExportField] = $label;
+            }
         }
+
+        $customMethods = array_unique($customMethodsArray);
+        foreach ($customMethods as $method) {
+            $fieldsArr[$method] = '';
+        }
+
         if(!empty($fieldsArr)) {
             $exportColumns = $fieldsArr;
-        } else if($dataCols = $gridField->getConfig()->getComponentByType('GridFieldDataColumns')) {
+        } else if($dataCols = $gridField->getConfig()->getComponentByType(GridFieldDataColumns::class)) {
             $exportColumns = $dataCols->getDisplayFields($gridField);
         } else {
             $exportColumns = singleton($gridField->getModelClass())->summaryFields();
@@ -159,18 +192,17 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
 
     public function handleXlsx(GridField $gridField, $request = null, $ext)
     {
-        return $this->genericHandle('ExcelDataFormatter', $ext, $gridField, $request);
+        return $this->genericHandle(ExcelDataFormatter::class, $ext, $gridField, $request);
     }
 
     public function handleCsv(GridField $gridField, $request = null, $ext)
     {
-        return $this->genericHandle('CsvDataFormatter', $ext, $gridField, $request);
+        return $this->genericHandle(CsvDataFormatter::class, $ext, $gridField, $request);
     }
 
     protected function genericHandle($dataFormatterClass, $ext, GridField $gridField, $request = null)
     {
         $items = $this->getItems($gridField);
-        
         // Allways filter out test user
         $items = $items->exclude('TestUser', 1);
 
@@ -178,8 +210,11 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
         $this->setHeader($gridField, $ext, $exportButton->ExportFileName);
 
         $formater = new $dataFormatterClass();
+
         $formater->setCustomFields($this->getExportColumnsForGridField($gridField));
+
 //        $formater->setUseLabelsAsHeaders($this->useLabelsAsHeaders);
+
         $fileData = $formater->convertDataObjectSet($items);
 
         return $fileData;
@@ -187,9 +222,12 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
 
     protected function getItems(GridField $gridField)
     {
-        $gridField->getConfig()->removeComponentsByType('GridFieldPaginator');
+        $gridField->getConfig()->removeComponentsByType(GridFieldPaginator::class);
 
-        $items = $gridField->getManipulatedList();
+//        $items = $gridField->getManipulatedList();
+//        $columns = $gridField->State->GridFieldFilterHeader->Columns(null);
+
+        $items = $gridField->getList();
 
         foreach ($gridField->getConfig()->getComponents() as $component) {
             if ($component instanceof GridFieldFilterHeader || $component instanceof GridFieldSortableHeader) {
@@ -197,9 +235,12 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
             }
         }
 
+        $gridField->getList();
         $arrayList = new ArrayList();
 
         foreach ($items->limit(null) as $item) {
+
+
             if (!$item->hasMethod('canView') || $item->canView()) {
                 $arrayList->add($item);
             }
