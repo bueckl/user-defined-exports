@@ -23,15 +23,18 @@ class UserDefinedExportsModelAdminExtension extends DataExtension
 
             $gridFieldName = $this->sanitiseClassName($manageModel);
             $gridField = $form->Fields()->fieldByName($gridFieldName);
-            $gridField->getConfig()->removeComponentsByType(GridFieldExportButton::class);
 
-            $exportButton = new UserDefinedGridFieldExportButton(
-                'after',
-                null,
-                $this->owner->modelClass
-            );
+            if ($gridField) { 
+                $gridField->getConfig()->removeComponentsByType(GridFieldExportButton::class);
 
-            $gridField->getConfig()->addComponent($exportButton);
+                $exportButton = new UserDefinedGridFieldExportButton(
+                    'after',
+                    null,
+                    $this->owner->modelClass
+                );
+
+                $gridField->getConfig()->addComponent($exportButton);
+            } 
         }
     }
 
