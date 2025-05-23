@@ -15,6 +15,7 @@ use SilverStripe\Security\Member;
 use SilverStripe\Security\Security;
 use SilverStripe\View\SSViewer;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
+use SilverStripe\SiteConfig\SiteConfig;
 
 class ExcelDataFormatter extends DataFormatter
 {
@@ -198,7 +199,8 @@ class ExcelDataFormatter extends DataFormatter
 
 
 
-            $this->headerRow($sheet, $allFields, $first);
+            // Adjust header row to start below the logo and title
+            $this->headerRow($sheet, $allFields, $first, 2); // Pass row offset as 2 to start from the second row
 
             // Add a new row for each DataObject
             foreach ($set as $item) {
@@ -216,6 +218,40 @@ class ExcelDataFormatter extends DataFormatter
             }
 
         }
+        // Add logo and text at the top
+        $drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
+        $drawing->setName('Logo');
+        $drawing->setDescription('Logo');
+
+        $Logo = SiteConfig::current_site_config()->MainEvent()->EventLogo();
+        
+        if ($Logo && $Logo->exists()) {
+            $drawing->setPath($Logo->AbsoluteLink());
+            $drawing->setHeight(50);
+            $drawing->setCoordinates('A1');
+            $drawing->setWorksheet($sheet);
+        } else {
+            
+        }
+        
+        
+        $sheet->getRowDimension('1')->setRowHeight(50);
+        $sheet->mergeCells('A1:B1'); // Merge cells for the log
+        
+        $sheet->setCellValue('C1', SiteConfig::current_site_config()->MainEvent()->Title);
+        $sheet->mergeCells('C1:E1'); // Merge cells for the title
+        $sheet->getStyle('C1')->getFont()->setBold(false)->setSize(17);     
+        $sheet->getStyle('C1')->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_TOP);
+        $sheet->setCellValue('F1', 'Standard Export | ' . date('d.m.Y H:i')); // Add custom text
+        $sheet->getStyle('F1')->getFont()->setBold(false)->setSize(10);
+        $sheet->getStyle('F1')->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_TOP);
+        $sheet->setCellValue('G1', 'INTERNAL USE ONLY'); // Add custom text
+        $sheet->mergeCells('G1:H1'); // Merge cells for the title
+        $sheet->getStyle('G1')->getFont()->setBold(true)->setSize(17);
+        // make red
+        $sheet->getStyle('G1')->getFont()->getColor()->setARGB(\PhpOffice\PhpSpreadsheet\Style\Color::COLOR_RED);
+        $sheet->getStyle('G1')->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_TOP);
+
         return $excel;
     }
 
@@ -258,23 +294,26 @@ class ExcelDataFormatter extends DataFormatter
             $excel->getActiveSheet()->setTitle($plural);
         }
 
+        // Set default font to Arial
+        $excel->getDefaultStyle()->getFont()->setName('Arial');
+
         return $excel;
     }
 
 
-    protected function headerRow(Worksheet &$sheet, array $fields, DataObjectInterface $do)
+    protected function headerRow(Worksheet &$sheet, array $fields, DataObjectInterface $do, $rowOffset = 1)
     {
         // Counter
-        $row = 1;
+        $row = $rowOffset;
         $col = 1;
 
         $useLabelsAsHeaders = $this->getUseLabelsAsHeaders();
 
-        // Add each field to the first row
+        // Add each field to the specified row
         $customFields = $this->customFields;
 
         foreach ($fields as $field => $type) {
-            if(array_key_exists($field, $customFields)) {
+            if (array_key_exists($field, $customFields)) {
                 $fieldLabel = $customFields[$field] != null ? $customFields[$field] : ($do->hasMethod('fieldLabel') ? $do->fieldLabel($field) : $field);
             } else {
                 $fieldLabel = $do->hasMethod('fieldLabel') ? $do->fieldLabel($field) : $field;
@@ -288,8 +327,9 @@ class ExcelDataFormatter extends DataFormatter
         $col--;
         $endcol = Coordinate::stringFromColumnIndex($col);
         // Set Autofilters and Header row style
-        $sheet->setAutoFilter("A1:{$endcol}1");
-        $sheet->getStyle("A1:{$endcol}1")->getFont()->setBold(true);
+        $sheet->setAutoFilter("A{$row}:{$endcol}{$row}");
+        $sheet->getStyle("A{$row}:{$endcol}{$row}")->getFont()->setBold(true);
+
         return $sheet;
     }
 
