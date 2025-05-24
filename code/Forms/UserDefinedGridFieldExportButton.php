@@ -207,9 +207,15 @@ class UserDefinedGridFieldExportButton extends GridFieldExportButton
         $items = $items->exclude('TestUser', 1);
 
         $exportButton = $this->getExportButton();
+
+        
         $this->setHeader($gridField, $ext, $exportButton->ExportFileName);
 
         $formater = new $dataFormatterClass();
+
+        if ($exportButton) {
+            $formater->setExportButtonName($exportButton->ExportButtonName);
+        }
 
         $formater->setCustomFields($this->getExportColumnsForGridField($gridField));
 
