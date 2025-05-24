@@ -23,6 +23,18 @@ class ExcelDataFormatter extends DataFormatter
 
     private static $api_base = "api/v1/";
 
+    protected $exportButtonName;
+
+    public function setExportButtonName($name)
+    {
+        $this->exportButtonName = $name;
+    }
+
+    public function getExportButtonName()
+    {
+        return $this->exportButtonName;
+    }
+
     /**
      * Determined what we will use as headers for the spread sheet.
      * @var bool
@@ -173,11 +185,13 @@ class ExcelDataFormatter extends DataFormatter
         $first = $set->first();
 
 
+     
 
         // Get the Excel object
         $excel = $this->setupExcel($first);
         $sheet = $excel->setActiveSheetIndex(0);
 
+        
         // Make sure we have at lease on item. If we don't, we'll be returning
         // an empty spreadsheet.
         if ($first) {
@@ -200,7 +214,7 @@ class ExcelDataFormatter extends DataFormatter
 
 
             // Adjust header row to start below the logo and title
-            $this->headerRow($sheet, $allFields, $first, 2); // Pass row offset as 2 to start from the second row
+            $this->headerRow($sheet, $allFields, $first, 6); // Pass row offset as 5 to start from the fifth row
 
             // Add a new row for each DataObject
             foreach ($set as $item) {
@@ -208,7 +222,7 @@ class ExcelDataFormatter extends DataFormatter
             }
 
             // Freezing the first column and the header row
-            $sheet->freezePane("B2");
+            // $sheet->freezePane("B2");
             // Auto sizing all the columns
             $col = sizeof($fields);
             for ($i = 1; $i <= $col; $i++) {
@@ -236,21 +250,21 @@ class ExcelDataFormatter extends DataFormatter
         
         
         $sheet->getRowDimension('1')->setRowHeight(50);
-        $sheet->mergeCells('A1:B1'); // Merge cells for the log
-        
-        $sheet->setCellValue('C1', SiteConfig::current_site_config()->MainEvent()->Title);
-        $sheet->mergeCells('C1:E1'); // Merge cells for the title
-        $sheet->getStyle('C1')->getFont()->setBold(false)->setSize(17);     
-        $sheet->getStyle('C1')->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_TOP);
-        $sheet->setCellValue('F1', 'Standard Export | ' . date('d.m.Y H:i')); // Add custom text
-        $sheet->getStyle('F1')->getFont()->setBold(false)->setSize(10);
-        $sheet->getStyle('F1')->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_TOP);
-        $sheet->setCellValue('G1', 'INTERNAL USE ONLY'); // Add custom text
-        $sheet->mergeCells('G1:H1'); // Merge cells for the title
-        $sheet->getStyle('G1')->getFont()->setBold(true)->setSize(17);
+        $sheet->mergeCells('A1:C1'); // Merge cells for the log        
+        $sheet->setCellValue('A2', SiteConfig::current_site_config()->MainEvent()->Title. ' - '.$this->exportButtonName . ' Export'); // Set the title
+        $sheet->mergeCells('A2:C2'); // Merge cells for the title
+        $sheet->getStyle('A2')->getFont()->setBold(true)->setSize(11);     
+        $sheet->getStyle('A2')->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_TOP);
+        $sheet->setCellValue('A3', 'Stand: ' . date('d.m.Y H:i')); 
+        $sheet->mergeCells('A3:C3'); 
+        $sheet->getStyle('A3')->getFont()->setBold(false)->setSize(11);
+        $sheet->getStyle('A3')->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_TOP);
+        $sheet->setCellValue('A4', 'Internal use only'); 
+        $sheet->mergeCells('A4:C4'); 
+        $sheet->getStyle('A4')->getFont()->setBold(false)->setSize(11);
         // make red
-        $sheet->getStyle('G1')->getFont()->getColor()->setARGB(\PhpOffice\PhpSpreadsheet\Style\Color::COLOR_RED);
-        $sheet->getStyle('G1')->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_TOP);
+        $sheet->getStyle('A4')->getFont()->getColor()->setARGB(\PhpOffice\PhpSpreadsheet\Style\Color::COLOR_RED);
+        $sheet->getStyle('A4')->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_TOP);
 
         return $excel;
     }
@@ -329,6 +343,11 @@ class ExcelDataFormatter extends DataFormatter
         // Set Autofilters and Header row style
         $sheet->setAutoFilter("A{$row}:{$endcol}{$row}");
         $sheet->getStyle("A{$row}:{$endcol}{$row}")->getFont()->setBold(true);
+
+        // Apply background color to the header row
+        $sheet->getStyle("A{$row}:{$endcol}{$row}")->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setARGB(\PhpOffice\PhpSpreadsheet\Style\Color::COLOR_YELLOW);
 
         return $sheet;
     }
