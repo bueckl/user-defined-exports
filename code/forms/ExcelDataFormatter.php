@@ -1,16 +1,39 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Koshala Manojeewa
- * Date: 3/11/19
- * Time: 10:25 AM
- */
+
+namespace UserDefinedExports\Forms;
+
+use ExcelExport\DataFormatter;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use SilverStripe\Control\Controller;
+use SilverStripe\ORM\ArrayList;
+use SilverStripe\ORM\DataObjectInterface;
+use SilverStripe\ORM\SS_List;
+use SilverStripe\Security\Member;
+use SilverStripe\Security\Security;
+use SilverStripe\View\SSViewer;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
+use SilverStripe\SiteConfig\SiteConfig;
 
 class ExcelDataFormatter extends DataFormatter
 {
 
 
     private static $api_base = "api/v1/";
+
+    protected $exportButtonName;
+
+    public function setExportButtonName($name)
+    {
+        $this->exportButtonName = $name;
+    }
+
+    public function getExportButtonName()
+    {
+        return $this->exportButtonName;
+    }
 
     /**
      * Determined what we will use as headers for the spread sheet.
@@ -55,7 +78,7 @@ class ExcelDataFormatter extends DataFormatter
 
         $excel = $this->getPhpExcelObject($set);
 
-        $fileData = $this->getFileData($excel, 'Excel2007');
+        $fileData = $this->getFileData($excel, 'Xlsx');
 
         return $fileData;
     }
@@ -80,6 +103,8 @@ class ExcelDataFormatter extends DataFormatter
         // if custom fields are specified, only select these
         if(is_array($this->customFields)) {
 
+
+
             foreach($this->customFields as $fieldName => $title) {
 
                 // @todo Possible security risk by making methods accessible - implement field-level security
@@ -99,11 +124,30 @@ class ExcelDataFormatter extends DataFormatter
                         }
                     }
                 }
+
+                 // RELATION HANDLING JOCHEN
+                if($hasOne = $obj->belongsTo()) {
+                    foreach($hasOne as $relationship => $class) {
+
+                        $parts = explode(".", $fieldName);
+                        if (count($parts) == 2) {
+                            // It's a relation!
+                            $relation = $parts[0];
+                            $dbFields[$fieldName] = $parts[1];
+                        }
+                    }
+                }
+
+                if($obj->hasMethod("{$fieldName}")) {
+                    $dbFields[$fieldName] = '';
+                }
+
+
                 // END RELATION HANDLING
 
             }
 
-        } elseif ($obj->hasMethod('getExcelExportFields')) {            
+        } elseif ($obj->hasMethod('getExcelExportFields')) {
             $dbFields = $obj->getExcelExportFields();
         } else {
             // by default, all database fields are selected
@@ -126,7 +170,6 @@ class ExcelDataFormatter extends DataFormatter
             $dbFields = array_diff_key($dbFields, array_combine($this->removeFields,$this->removeFields));
         }
 
-
         return $dbFields;
     }
 
@@ -141,17 +184,37 @@ class ExcelDataFormatter extends DataFormatter
         // are dealing with
         $first = $set->first();
 
+
+     
+
         // Get the Excel object
         $excel = $this->setupExcel($first);
         $sheet = $excel->setActiveSheetIndex(0);
 
+        
         // Make sure we have at lease on item. If we don't, we'll be returning
         // an empty spreadsheet.
         if ($first) {
 
             // Set up the header row
             $fields = $this->getFieldsForObj($first);
-            $this->headerRow($sheet, $fields, $first);
+            $allFields = [];
+
+            foreach ($fields as $field => $label) {
+                if($first->hasMethod("{$field}")) {
+                    foreach ($first->$field() as $customField => $value) {
+                        $allFields[$customField] = '';
+                    }
+                } else {
+                    $allFields[$field] = $label;
+                }
+            }
+
+
+
+
+            // Adjust header row to start below the logo and title
+            $this->headerRow($sheet, $allFields, $first, 6); // Pass row offset as 5 to start from the fifth row
 
             // Add a new row for each DataObject
             foreach ($set as $item) {
@@ -159,19 +222,54 @@ class ExcelDataFormatter extends DataFormatter
             }
 
             // Freezing the first column and the header row
-            $sheet->freezePane("B2");
-
+            // $sheet->freezePane("B2");
             // Auto sizing all the columns
             $col = sizeof($fields);
-            for ($i = 0; $i < $col; $i++) {
-                $sheet
-                    ->getColumnDimension(
-                        PHPExcel_Cell::stringFromColumnIndex($i)
-                    )
+            for ($i = 1; $i <= $col; $i++) {
+                $sheet->getColumnDimension(Coordinate::stringFromColumnIndex($i))
                     ->setAutoSize(true);
+
             }
 
         }
+        // Add logo and text at the top
+        $drawing = new \PhpOffice\PhpSpreadsheet\Worksheet\Drawing();
+        $drawing->setName('Logo');
+        $drawing->setDescription('Logo');
+
+        $Logo = SiteConfig::current_site_config()->MainEvent()->EventLogo();
+
+        $logoURL = $Logo->getAbsoluteURL(); // Get the URL of the logo
+
+        $logoPath = BASE_PATH . parse_url($logoURL, PHP_URL_PATH); // Convert URL to local file path
+
+        
+        if (file_exists($logoPath)) {
+            $drawing->setPath($logoPath);
+            $drawing->setHeight(50);
+            $drawing->setCoordinates('A1');
+            $drawing->setWorksheet($sheet);
+        } else {
+            
+        }
+        
+        
+        $sheet->getRowDimension('1')->setRowHeight(50);
+        $sheet->mergeCells('A1:C1'); // Merge cells for the log        
+        $sheet->setCellValue('A2', SiteConfig::current_site_config()->MainEvent()->Title. ' - '.$this->exportButtonName . ' Export'); // Set the title
+        $sheet->mergeCells('A2:C2'); // Merge cells for the title
+        $sheet->getStyle('A2')->getFont()->setBold(true)->setSize(11);     
+        $sheet->getStyle('A2')->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_TOP);
+        $sheet->setCellValue('A3', 'Stand: ' . date('d.m.Y H:i')); 
+        $sheet->mergeCells('A3:C3'); 
+        $sheet->getStyle('A3')->getFont()->setBold(false)->setSize(11);
+        $sheet->getStyle('A3')->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_TOP);
+        $sheet->setCellValue('A4', 'Internal use only'); 
+        $sheet->mergeCells('A4:C4'); 
+        $sheet->getStyle('A4')->getFont()->setBold(false)->setSize(11);
+        // make red
+        $sheet->getStyle('A4')->getFont()->getColor()->setARGB(\PhpOffice\PhpSpreadsheet\Style\Color::COLOR_RED);
+        $sheet->getStyle('A4')->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_TOP);
 
         return $excel;
     }
@@ -185,7 +283,7 @@ class ExcelDataFormatter extends DataFormatter
     protected function setupExcel(DataObjectInterface $do)
     {
         // Try to get the current user
-        $member = Member::currentUser();
+        $member = Security::getCurrentUser();
         $creator = $member ? $member->getName() : '';
 
         // Get information about the current Model Class
@@ -193,7 +291,7 @@ class ExcelDataFormatter extends DataFormatter
         $plural = $do ? $do->i18n_plural_name() : '';
 
         // Create the Spread sheet
-        $excel = new PHPExcel();
+        $excel = new Spreadsheet();
 
         $excel->getProperties()
             ->setCreator($creator)
@@ -215,48 +313,59 @@ class ExcelDataFormatter extends DataFormatter
             $excel->getActiveSheet()->setTitle($plural);
         }
 
+        // Set default font to Arial
+        $excel->getDefaultStyle()->getFont()->setName('Arial');
+
         return $excel;
     }
 
-    /**
-     * Add an header row to a {@link PHPExcel_Worksheet}.
-     * @param  PHPExcel_Worksheet $sheet
-     * @param  array              $fields List of fields
-     * @param  DataObjectInterface  $do
-     * @return PHPExcel_Worksheet
-     */
-    protected function headerRow(PHPExcel_Worksheet &$sheet, array $fields, DataObjectInterface $do)
+
+    protected function headerRow(Worksheet &$sheet, array $fields, DataObjectInterface $do, $rowOffset = 1)
     {
         // Counter
-        $row = 1;
-        $col = 0;
+        $row = $rowOffset;
+        $col = 1;
 
         $useLabelsAsHeaders = $this->getUseLabelsAsHeaders();
 
-        // Add each field to the first row
+        // Add each field to the specified row
         $customFields = $this->customFields;
 
         foreach ($fields as $field => $type) {
-            // debug::dump( $customFields[$field] ); 
-            // debug::dump( $customFields[$type] ); 
-            //$header = $useLabelsAsHeaders ? $do->fieldLabel($field) : $field;
-            $header = $customFields[$field] != "" ? $customFields[$field] : $do->fieldLabel($field);
-            $sheet->setCellValueByColumnAndRow($col, $row, $header);
+            if (array_key_exists($field, $customFields)) {
+                $fieldLabel = $customFields[$field] != null ? $customFields[$field] : ($do->hasMethod('fieldLabel') ? $do->fieldLabel($field) : $field);
+            } else {
+                $fieldLabel = $do->hasMethod('fieldLabel') ? $do->fieldLabel($field) : $field;
+            }
+            $header = $fieldLabel;
+            $cellCoordinate = Coordinate::stringFromColumnIndex($col) . $row;
+            $sheet->setCellValue($cellCoordinate, $header);
             $col++;
         }
-
-        
-
         // Get the last column
         $col--;
-        $endcol = PHPExcel_Cell::stringFromColumnIndex($col);
-
+        $endcol = Coordinate::stringFromColumnIndex($col);
         // Set Autofilters and Header row style
-        $sheet->setAutoFilter("A1:{$endcol}1");
-        $sheet->getStyle("A1:{$endcol}1")->getFont()->setBold(true);
+        $sheet->setAutoFilter("A{$row}:{$endcol}{$row}");
+        $sheet->getStyle("A{$row}:{$endcol}{$row}")->getFont()->setBold(true);
 
+        // Apply background color to the header row
+        $sheet->getStyle("A{$row}:{$endcol}{$row}")->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setARGB(\PhpOffice\PhpSpreadsheet\Style\Color::COLOR_YELLOW);
 
         return $sheet;
+    }
+
+
+    protected function columnNameFromIndex($index) {
+        $index--; // Adjust so that 1 = A, 2 = B, etc.
+        $letter = '';
+        while ($index >= 0) {
+            $letter = chr($index % 26 + 65) . $letter;
+            $index = floor($index / 26) - 1;
+        }
+        return $letter;
     }
 
     /**
@@ -268,21 +377,58 @@ class ExcelDataFormatter extends DataFormatter
      * @return PHPExcel_Worksheet
      */
     protected function addRow(
-        PHPExcel_Worksheet &$sheet,
+        Worksheet &$sheet,
         DataObjectInterface $item,
         array $fields
     ) {
         $row = $sheet->getHighestRow() + 1;
-        $col = 0;
+        $col = 1;
 
         foreach ($fields as $field => $type) {
             if ($item->hasField($field) || $item->hasMethod("get{$field}")) {
                 $value = $item->$field;
+                
+                if($field == 'Cell' || $field == 'Phone' || $field == 'UDID') {
+                    $cellCoordinate = Coordinate::stringFromColumnIndex($col) . $row;
+                    $sheet->setCellValueExplicit($cellCoordinate, $value, DataType::TYPE_STRING);
+                } else {
+                    $cellCoordinate = Coordinate::stringFromColumnIndex($col) . $row;
+                    $sheet->setCellValue($cellCoordinate, $value);
+                }
+
+                if ($field == 'Events' || $field == 'Event' || $field == 'MemberSubEventsString') {
+                    $cellCoordinate = $this->columnNameFromIndex($col) . $row;
+                    $sheet->getStyle($cellCoordinate)
+                          ->getAlignment()                          
+                          ->setWrapText(true);
+                    
+                    // Set background color
+                    // $sheet->getStyle($cellCoordinate)->getFill()
+                    // ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                    // ->getStartColor()->setARGB('FFFF00'); // Yellow color, change 'FFFF00' to your desired color
+
+                }
+                
+            } elseif ($item->hasMethod("{$field}")) {
+                $arrayData = $item->$field();
+                $i = 0;
+                foreach ($arrayData as $dataField => $dataValue) {
+                    $value = $dataValue;
+                    $cellCoordinate = Coordinate::stringFromColumnIndex($col) . $row;
+                    $sheet->setCellValue($cellCoordinate, $value);
+                    if($i != count($arrayData) - 1) {
+                        $col++;
+                    }
+                    $i++;
+                }
+
             } else {
                 $viewer = SSViewer::fromString('$' . $field . '.RAW');
                 $value = $item->renderWith($viewer, true);
+                $cellCoordinate = Coordinate::stringFromColumnIndex($col) . $row;
+                $sheet->setCellValue($cellCoordinate, $value);
             }
-            $sheet->setCellValueByColumnAndRow($col, $row, $value);
+
             $col++;
         }
 
@@ -298,9 +444,9 @@ class ExcelDataFormatter extends DataFormatter
      * {@link PHPExcel_IOFactory::createWriter}.
      * @return string
      */
-    protected function getFileData(PHPExcel $excel, $format)
+    protected function getFileData($excel, $format)
     {
-        $writer = PHPExcel_IOFactory::createWriter($excel, $format);
+        $writer = IOFactory::createWriter($excel, $format);
         ob_start();
         $writer->save('php://output');
         $fileData = ob_get_clean();
@@ -328,7 +474,7 @@ class ExcelDataFormatter extends DataFormatter
             return $this->useLabelsAsHeaders;
         }
 
-        $useLabelsAsHeaders = static::config()->UseLabelsAsHeaders;
+        $useLabelsAsHeaders = $this->useLabelsAsHeaders;
         if ($useLabelsAsHeaders !== null) {
             return $useLabelsAsHeaders;
         }
